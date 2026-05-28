@@ -15,12 +15,24 @@ Aquesta carpeta conté els **6 fitxers** que demana l'enunciat (`Lliurament.pdf`
 
 ## Com crear el ZIP
 
-Des d'aquesta carpeta (`lliurament/`), comprimeix **només** aquests 6 fitxers:
+**Important:** no facis `zip -r` des de l'arrel del projecte. Si el ZIP ja existeix a la carpeta, s'inclourà dins de si mateix (bucle).
+
+Des de la carpeta `lliurament/`, comprimeix **només** aquests 6 fitxers, sense subcarpetes (`-j`):
 
 ```bash
 cd lliurament
-zip ../Practica_Automatitzacio.zip Memoria.pdf index-1.html estilo.css lista.php form-sensor.php nuevo-sensor.php
+zip -j ../Practica_Automatitzacio.zip \
+  Memoria.pdf index-1.html estilo.css \
+  lista.php form-sensor.php nuevo-sensor.php
 ```
+
+Comprova el contingut abans d'entregar:
+
+```bash
+unzip -l ../Practica_Automatitzacio.zip
+```
+
+Has de veure **exactament 6 fitxers** a l'arrel del ZIP (cap `.zip` dins, cap carpeta `lliurament/`).
 
 ## Aplicació web desplegada
 
