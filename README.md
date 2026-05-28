@@ -413,4 +413,4 @@ $cn = new mysqli('localhost', 'phpmyadmin', '12345', 'IoTMonitorizacion');
 
 ---
 
-*Project developed for the Automatització course — Escola Politècnica Superior d'Enginyeria de Manresa (EPSEM), Universitat Politècnica de Catalunya (UPC).*
+*Project developed for the Automatització course — Escola Tècnica Superior d'Enginyeria Industrial de Barcelona (ETSEIB), Universitat Politècnica de Catalunya (UPC).*
