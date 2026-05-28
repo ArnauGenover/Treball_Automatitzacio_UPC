@@ -69,6 +69,26 @@ if (empty($idMagnitud) || empty($codigo)) {
                     <?php
                     if (!$cn) { die(htmlspecialchars($DB_CONNECT_ERROR)); }
 
+                    // Comprova duplicat abans d'intentar la inserció
+                    $duplicado = false;
+                    $stmtCheck = $cn->prepare("SELECT id FROM Sensor WHERE codigo = ? LIMIT 1");
+                    if ($stmtCheck) {
+                        $stmtCheck->bind_param('s', $codigo);
+                        $stmtCheck->execute();
+                        $resCheck = $stmtCheck->get_result();
+                        $duplicado = ($resCheck->num_rows > 0);
+                        $stmtCheck->close();
+                    }
+
+                    if ($duplicado):
+                    ?>
+                        <div class="alert alert-error">
+                            <span class="alert-icon">✖</span>
+                            <div>Ya existe un sensor con el código <strong><?= htmlspecialchars($codigo) ?></strong>. El código debe ser único.</div>
+                        </div>
+                        <a href="form-sensor.php" class="btn btn-primary">← Volver al formulario</a>
+
+                    <?php else:
                     $stmt = $cn->prepare(
                         "INSERT INTO Sensor (idMagnitud, codigo, modelo, rango)
                          VALUES (?, ?, ?, ?)"
@@ -112,16 +132,9 @@ if (empty($idMagnitud) || empty($codigo)) {
                         <p class="redirect-note" id="redirectNote">Redirigiendo a la lista en <span id="countdown">3</span>s…</p>
 
                     <?php else: ?>
-                        <?php
-                        if ($cn->errno === 1062) {
-                            $msg = 'Ya existe un sensor con el código <strong>' . htmlspecialchars($codigo) . '</strong>. El código debe ser único.';
-                        } else {
-                            $msg = 'Error en la inserción: ' . htmlspecialchars($cn->error);
-                        }
-                        ?>
                         <div class="alert alert-error">
                             <span class="alert-icon">✖</span>
-                            <div><?= $msg ?></div>
+                            <div>Error en la inserción: <?= htmlspecialchars($cn->error) ?></div>
                         </div>
                         <a href="form-sensor.php" class="btn btn-primary">← Volver al formulario</a>
 
@@ -129,6 +142,7 @@ if (empty($idMagnitud) || empty($codigo)) {
 
                     <?php
                     $stmt->close();
+                    endif; // duplicado
                     $cn->close();
                     ?>
 

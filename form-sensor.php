@@ -13,6 +13,16 @@ $magnituds    = $cn->query($sqlMagnituds);
 if (!$magnituds) {
     die('Error en la consulta: ' . $cn->error);
 }
+
+// Còdigs ja registrats (per validar duplicats abans d'enviar el formulari)
+$codigosExistentes = [];
+$resCodigos = $cn->query("SELECT codigo FROM Sensor ORDER BY codigo ASC");
+if ($resCodigos) {
+    while ($row = $resCodigos->fetch_assoc()) {
+        $codigosExistentes[] = $row['codigo'];
+    }
+    $resCodigos->free();
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -81,6 +91,7 @@ if (!$magnituds) {
                             <input type="text" id="codigo" name="codigo"
                                    maxlength="6" placeholder="Máx. 6 caracteres">
                             <span class="field-error" id="err-codigo">El código es obligatorio (máx. 6 caracteres).</span>
+                            <span class="field-error" id="err-codigo-duplicado">Este código ya existe. Elige otro.</span>
                         </div>
 
                         <div class="form-group">
@@ -113,10 +124,16 @@ if (!$magnituds) {
     </div>
 
     <script>
+        const codigosExistentes = <?= json_encode($codigosExistentes, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+
+        function codigoDuplicado(codigo) {
+            const normalizado = codigo.trim().toLowerCase();
+            return codigosExistentes.some(c => c.toLowerCase() === normalizado);
+        }
+
         document.getElementById('formSensor').addEventListener('submit', function(e) {
             let valid = true;
 
-            // Validate magnitud
             const mag = document.getElementById('idMagnitud');
             const errMag = document.getElementById('err-magnitud');
             if (!mag.value) {
@@ -128,12 +145,18 @@ if (!$magnituds) {
                 errMag.classList.remove('visible');
             }
 
-            // Validate codigo
             const cod = document.getElementById('codigo');
             const errCod = document.getElementById('err-codigo');
+            const errCodDup = document.getElementById('err-codigo-duplicado');
+            errCodDup.classList.remove('visible');
+
             if (!cod.value.trim()) {
                 cod.classList.add('input-error');
                 errCod.classList.add('visible');
+                valid = false;
+            } else if (codigoDuplicado(cod.value)) {
+                cod.classList.add('input-error');
+                errCodDup.classList.add('visible');
                 valid = false;
             } else {
                 cod.classList.remove('input-error');
@@ -143,12 +166,14 @@ if (!$magnituds) {
             if (!valid) e.preventDefault();
         });
 
-        // Clear error styles on input
         ['idMagnitud', 'codigo'].forEach(id => {
             document.getElementById(id).addEventListener('input', function() {
                 this.classList.remove('input-error');
                 document.getElementById('err-' + (id === 'idMagnitud' ? 'magnitud' : id))
                         .classList.remove('visible');
+                if (id === 'codigo') {
+                    document.getElementById('err-codigo-duplicado').classList.remove('visible');
+                }
             });
         });
 
