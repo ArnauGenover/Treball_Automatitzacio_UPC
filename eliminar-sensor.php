@@ -12,11 +12,8 @@ if ($id <= 0) {
     exit;
 }
 
-$cn = new mysqli('localhost', 'phpmyadmin', '12345', 'IoTMonitorizacion');
-
-if ($cn->connect_errno) {
-    die('Error de connexió: ' . $cn->connect_error);
-}
+require_once 'config.php';
+if (!$cn) { die(htmlspecialchars($DB_CONNECT_ERROR)); }
 
 // Obté el codi del sensor abans d'esborrar (per mostrar-lo al missatge)
 $stmtGet = $cn->prepare("SELECT codigo FROM Sensor WHERE id = ?");
@@ -64,7 +61,7 @@ if ($deleted) {
 
     <!-- Navbar -->
     <nav class="navbar">
-        <a href="index-1.php" class="navbar-brand">
+        <a href="index.php" class="navbar-brand">
             <div class="brand-icon">⚡</div>
             <div>
                 IoT Monitor
@@ -72,7 +69,7 @@ if ($deleted) {
             </div>
         </a>
         <ul class="navbar-nav">
-            <li><a href="index-1.php">Inicio</a></li>
+            <li><a href="index.php">Inicio</a></li>
             <li><a href="lista.php" class="active">Sensores</a></li>
             <li><a href="form-sensor.php">Añadir</a></li>
         </ul>

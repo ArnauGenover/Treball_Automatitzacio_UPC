@@ -4,11 +4,8 @@
  * Formulari per afegir un nou sensor.
  */
 
-$cn = new mysqli('localhost', 'phpmyadmin', '12345', 'IoTMonitorizacion');
-
-if ($cn->connect_errno) {
-    die('Error de connexió: ' . $cn->connect_error);
-}
+require_once 'config.php';
+if (!$cn) { die(htmlspecialchars($DB_CONNECT_ERROR)); }
 
 $sqlMagnituds = "SELECT id, nombre FROM Magnitud ORDER BY nombre ASC";
 $magnituds    = $cn->query($sqlMagnituds);
@@ -29,7 +26,7 @@ if (!$magnituds) {
 
     <!-- Navbar -->
     <nav class="navbar">
-        <a href="index-1.php" class="navbar-brand">
+        <a href="index.php" class="navbar-brand">
             <div class="brand-icon">⚡</div>
             <div>
                 IoT Monitor
@@ -37,7 +34,7 @@ if (!$magnituds) {
             </div>
         </a>
         <ul class="navbar-nav">
-            <li><a href="index-1.php">Inicio</a></li>
+            <li><a href="index.php">Inicio</a></li>
             <li><a href="lista.php">Sensores</a></li>
             <li><a href="form-sensor.php" class="active">Añadir</a></li>
         </ul>
@@ -111,7 +108,7 @@ if (!$magnituds) {
             </div>
         </div>
 
-        <a class="back-link" href="index-1.php">← Volver al inicio</a>
+        <a class="back-link" href="index.php">← Volver al inicio</a>
 
     </div>
 

@@ -11,11 +11,8 @@ if ($id <= 0) {
     exit;
 }
 
-$cn = new mysqli('localhost', 'phpmyadmin', '12345', 'IoTMonitorizacion');
-
-if ($cn->connect_errno) {
-    die('Error de connexió: ' . $cn->connect_error);
-}
+require_once 'config.php';
+if (!$cn) { die(htmlspecialchars($DB_CONNECT_ERROR)); }
 
 // ── Obté les dades del sensor ─────────────────────────────────────────────────
 $stmt = $cn->prepare("SELECT id, idMagnitud, codigo, modelo, rango FROM Sensor WHERE id = ?");
@@ -48,7 +45,7 @@ $magnituds = $cn->query("SELECT id, nombre FROM Magnitud ORDER BY nombre ASC");
 
     <!-- Navbar -->
     <nav class="navbar">
-        <a href="index-1.php" class="navbar-brand">
+        <a href="index.php" class="navbar-brand">
             <div class="brand-icon">⚡</div>
             <div>
                 IoT Monitor
@@ -56,7 +53,7 @@ $magnituds = $cn->query("SELECT id, nombre FROM Magnitud ORDER BY nombre ASC");
             </div>
         </a>
         <ul class="navbar-nav">
-            <li><a href="index-1.php">Inicio</a></li>
+            <li><a href="index.php">Inicio</a></li>
             <li><a href="lista.php" class="active">Sensores</a></li>
             <li><a href="form-sensor.php">Añadir</a></li>
         </ul>

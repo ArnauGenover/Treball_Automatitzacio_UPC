@@ -5,6 +5,8 @@
  * el nou sensor a la base de dades.
  */
 
+require_once 'config.php';
+
 $idMagnitud = isset($_GET['idMagnitud']) ? trim($_GET['idMagnitud']) : '';
 $codigo     = isset($_GET['codigo'])     ? trim($_GET['codigo'])     : '';
 $modelo     = isset($_GET['modelo'])     ? trim($_GET['modelo'])     : '';
@@ -29,7 +31,7 @@ if (empty($idMagnitud) || empty($codigo)) {
 
     <!-- Navbar -->
     <nav class="navbar">
-        <a href="index-1.php" class="navbar-brand">
+        <a href="index.php" class="navbar-brand">
             <div class="brand-icon">⚡</div>
             <div>
                 IoT Monitor
@@ -37,7 +39,7 @@ if (empty($idMagnitud) || empty($codigo)) {
             </div>
         </a>
         <ul class="navbar-nav">
-            <li><a href="index-1.php">Inicio</a></li>
+            <li><a href="index.php">Inicio</a></li>
             <li><a href="lista.php">Sensores</a></li>
             <li><a href="form-sensor.php">Añadir</a></li>
         </ul>
@@ -65,11 +67,7 @@ if (empty($idMagnitud) || empty($codigo)) {
 
                 <?php else: ?>
                     <?php
-                    $cn = new mysqli('localhost', 'phpmyadmin', '12345', 'IoTMonitorizacion');
-
-                    if ($cn->connect_errno) {
-                        die('Error de connexió: ' . $cn->connect_error);
-                    }
+                    if (!$cn) { die(htmlspecialchars($DB_CONNECT_ERROR)); }
 
                     $stmt = $cn->prepare(
                         "INSERT INTO Sensor (idMagnitud, codigo, modelo, rango)
@@ -139,7 +137,7 @@ if (empty($idMagnitud) || empty($codigo)) {
             </div>
         </div>
 
-        <a class="back-link" href="index-1.php">← Volver al inicio</a>
+        <a class="back-link" href="index.php">← Volver al inicio</a>
 
     </div>
 

@@ -5,6 +5,8 @@
  * i actualitza el sensor a la base de dades.
  */
 
+require_once 'config.php';
+
 $id         = isset($_GET['id'])         ? (int)trim($_GET['id'])         : 0;
 $idMagnitud = isset($_GET['idMagnitud']) ? (int)trim($_GET['idMagnitud']) : 0;
 $codigo     = isset($_GET['codigo'])     ? trim($_GET['codigo'])          : '';
@@ -30,7 +32,7 @@ if ($id <= 0 || $idMagnitud <= 0 || empty($codigo)) {
 
     <!-- Navbar -->
     <nav class="navbar">
-        <a href="index-1.php" class="navbar-brand">
+        <a href="index.php" class="navbar-brand">
             <div class="brand-icon">⚡</div>
             <div>
                 IoT Monitor
@@ -38,7 +40,7 @@ if ($id <= 0 || $idMagnitud <= 0 || empty($codigo)) {
             </div>
         </a>
         <ul class="navbar-nav">
-            <li><a href="index-1.php">Inicio</a></li>
+            <li><a href="index.php">Inicio</a></li>
             <li><a href="lista.php" class="active">Sensores</a></li>
             <li><a href="form-sensor.php">Añadir</a></li>
         </ul>
@@ -66,11 +68,7 @@ if ($id <= 0 || $idMagnitud <= 0 || empty($codigo)) {
 
                 <?php else: ?>
                     <?php
-                    $cn = new mysqli('localhost', 'phpmyadmin', '12345', 'IoTMonitorizacion');
-
-                    if ($cn->connect_errno) {
-                        die('Error de connexió: ' . $cn->connect_error);
-                    }
+                    if (!$cn) { die(htmlspecialchars($DB_CONNECT_ERROR)); }
 
                     $stmt = $cn->prepare(
                         "UPDATE Sensor

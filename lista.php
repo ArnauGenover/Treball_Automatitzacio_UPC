@@ -4,11 +4,8 @@
  * Mostra la llista de sensors amb la seva magnitud associada.
  */
 
-$cn = new mysqli('localhost', 'phpmyadmin', '12345', 'IoTMonitorizacion');
-
-if ($cn->connect_errno) {
-    die('Error de connexió: ' . $cn->connect_error);
-}
+require_once 'config.php';
+if (!$cn) { die(htmlspecialchars($DB_CONNECT_ERROR)); }
 
 // ── Sensors amb JOIN a Magnitud ───────────────────────────────────────────────
 $sql = "SELECT s.id, s.codigo, s.modelo, m.nombre AS magnitud, s.rango
@@ -41,7 +38,7 @@ $stats = $cn->query($sqlStats);
 
     <!-- Navbar -->
     <nav class="navbar">
-        <a href="index-1.php" class="navbar-brand">
+        <a href="index.php" class="navbar-brand">
             <div class="brand-icon">⚡</div>
             <div>
                 IoT Monitor
@@ -49,7 +46,7 @@ $stats = $cn->query($sqlStats);
             </div>
         </a>
         <ul class="navbar-nav">
-            <li><a href="index-1.php">Inicio</a></li>
+            <li><a href="index.php">Inicio</a></li>
             <li><a href="lista.php" class="active">Sensores</a></li>
             <li><a href="form-sensor.php">Añadir</a></li>
         </ul>
@@ -162,7 +159,7 @@ $stats = $cn->query($sqlStats);
         $cn->close();
         ?>
 
-        <a class="back-link" href="index-1.php">← Volver al inicio</a>
+        <a class="back-link" href="index.php">← Volver al inicio</a>
 
     </div>
 
