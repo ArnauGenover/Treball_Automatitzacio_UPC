@@ -1,0 +1,24 @@
+<?php
+/**
+ * config.local.php.example
+ * ─────────────────────────────────────────────────────────────────────────────
+ * 1. Copy this file to config.local.php (same folder)
+ * 2. Replace the placeholder values with your real credentials
+ * 3. Never commit config.local.php to GitHub (.gitignore blocks it)
+ *
+ * Use LOCAL values when developing on your machine.
+ * On InfinityFree, upload config.local.php via FTP with PRODUCTION values.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+
+// ── LOCAL development (MariaDB on your machine) ───────────────────────────────
+define('DB_HOST', 'localhost');
+define('DB_USER', 'phpmyadmin');
+define('DB_PASS', 'YOUR_LOCAL_DB_PASSWORD');
+define('DB_NAME', 'IoTMonitorizacion');
+
+// ── PRODUCTION (InfinityFree) — uncomment and use on the server instead ───────
+// define('DB_HOST', 'sql208.infinityfree.com');
+// define('DB_USER', 'if0_41988251');
+// define('DB_PASS', 'YOUR_INFINITYFREE_PASSWORD');
+// define('DB_NAME', 'if0_41988251_iot');

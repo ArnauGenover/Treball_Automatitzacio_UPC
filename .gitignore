@@ -1,0 +1,11 @@
+# Local/production secrets — never commit this file
+config.local.php
+
+# ZIP de lliurament (generar localment; no incloure al repo per evitar ZIP dins de ZIP)
+Practica_Automatitzacio.zip
+
+# Artefactes LaTeX
+lliurament/memoria.aux
+lliurament/memoria.log
+lliurament/memoria.out
+lliurament/memoria.toc

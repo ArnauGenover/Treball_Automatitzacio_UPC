@@ -3,7 +3,7 @@
 % ── Codificació i idioma ────────────────────────────────────────────────────
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[spanish]{babel}
+\usepackage[catalan]{babel}
 
 % ── Tipografia ──────────────────────────────────────────────────────────────
 \usepackage{lmodern}
@@ -21,7 +21,7 @@
 \fancyhf{}
 \renewcommand{\headrulewidth}{0.4pt}
 \fancyhead[L]{\small Automatització Industrial}
-\fancyhead[R]{\small Monitorización de subestaciones eléctricas}
+\fancyhead[R]{\small Monitorització de subestacions elèctriques}
 \fancyfoot[C]{\thepage}
 
 % ── Colors ──────────────────────────────────────────────────────────────────
@@ -82,7 +82,6 @@
   boxrule=0.5pt,
 }
 
-% ── Separació entre paràgrafs ───────────────────────────────────────────────
 \setlength{\parskip}{6pt}
 \setlength{\parindent}{0pt}
 
@@ -95,150 +94,194 @@
   \vspace*{2cm}
   {\color{upcblue}\rule{\linewidth}{1.5pt}}\\[0.4cm]
   {\Huge\bfseries\color{upcblue} Memòria Descriptiva}\\[0.3cm]
-  {\large\color{darkgray} Pràctica: Monitorización de subestaciones eléctricas}\\[0.2cm]
+  {\large\color{darkgray} Pràctica: Monitorització de subestacions elèctriques}\\[0.2cm]
   {\color{upcblue}\rule{\linewidth}{1.5pt}}
 
   \vspace{1.5cm}
 
   \begin{tabular}{rl}
     \textbf{Assignatura:}    & Automatització Industrial \\[4pt]
-    \textbf{Titulació:}      & Grau en Enginyeria [ESPECIALITAT] \\[4pt]
-    \textbf{Escola:}         & [NOM DE L'ESCOLA] -- UPC \\[4pt]
+    \textbf{Titulació:}      & Grau en Enginyeria en Tecnologies Industrials \\[4pt]
+    \textbf{Escola:}         & ETSEIB -- Universitat Politècnica de Catalunya (UPC) \\[4pt]
     \textbf{Curs acadèmic:}  & 2025--2026 \\[4pt]
-    \textbf{Grup:}           & [NÚM. DE GRUP] \\[4pt]
-    \textbf{Data d'entrega:} & [DATA D'ENTREGA] \\
+    \textbf{Data d'entrega:} & Maig de 2026 \\
   \end{tabular}
 
-  \vspace{2cm}
+  \vspace{1.5cm}
+
+  {\large\bfseries Aplicació web desplegada}\\[0.3cm]
+  \url{https://monitoritzacio-upc.gt.tc/}
+
+  \vspace{1.5cm}
 
   {\large\bfseries Membres de l'equip}\\[0.5cm]
-  \begin{tabular}{ll}
-    \textbullet\quad [NOM MEMBRE 1] & \texttt{[NIU / correu]} \\[4pt]
-    \textbullet\quad [NOM MEMBRE 2] & \texttt{[NIU / correu]} \\[4pt]
-    \textbullet\quad [NOM MEMBRE 3] & \texttt{[NIU / correu]} \\
+  \begin{tabular}{l}
+    \textbullet\quad Arnau Genover \\[4pt]
+    \textbullet\quad Pol Coll \\
   \end{tabular}
 
   \vfill
   {\small\color{darkgray} Universitat Politècnica de Catalunya (UPC)}
 \end{titlepage}
 
-% ── Índex de continguts ─────────────────────────────────────────────────────
 \tableofcontents
 \newpage
 
 % ════════════════════════════════════════════════════════════════════════════
 \section{Introducció}
 
-L'objectiu d'aquesta pràctica ha estat desenvolupar una aplicació web funcional per a la gestió de sensors en subestacions elèctriques, en el context del monitoratge de dispositius IoT industrials.
+L'objectiu d'aquesta pràctica ha estat desenvolupar una aplicació web per a la gestió de sensors IoT en subestacions elèctriques, dins del cas d'estudi de monitorització industrial.
 
-L'aplicació s'ha implementat íntegrament amb tecnologies web estàndard: \textbf{PHP natiu} (sense l'ús de cap \textit{framework}), \textbf{HTML5} i \textbf{CSS3 pur}. Per a la capa d'accés a dades s'ha emprat l'extensió \textbf{\texttt{mysqli}} en mode orientat a objectes, instanciada amb:
+L'aplicació s'ha implementat amb \textbf{HTML5}, \textbf{CSS3}, \textbf{PHP natiu} (sense \textit{frameworks}) i \textbf{MariaDB}. Per a l'accés a dades s'utilitza l'extensió \textbf{\texttt{mysqli}} en mode orientat a objectes, amb \textit{prepared statements} per a les operacions d'escriptura.
 
-\begin{lstlisting}[language=PHP, caption={Connexió mysqli orientada a objectes}]
-$cn = new mysqli('localhost', 'phpmyadmin', '12345', 'IoTMonitorizacion');
-\end{lstlisting}
+La base de dades \texttt{IoTMonitorizacion} conté les taules \texttt{Sensor} i \texttt{Magnitud}, objecte principal de la pràctica, i altres entitats relacionades (subestacions, transformadors i lectures) que formen part de l'esquema complet del sistema IoT.
 
-La base de dades s'anomena \texttt{IoTMonitorizacion} i és accessible a \texttt{localhost} mitjançant \textbf{MariaDB}. L'aplicació permet consultar la llista de sensors existents i inserir-ne de nous, validant les dades d'entrada i gestionant els errors d'integritat de la base de dades.
+A més de complir els requisits mínims de l'enunciat (llistat i alta de sensors), s'ha ampliat el projecte amb operacions d'edició i eliminació (CRUD complet), validació de codis duplicats, cerca en temps real, panell de control amb estadístiques i desplegament en un servidor web públic accessible a:
 
-% ════════════════════════════════════════════════════════════════════════════
-\section{Estructura d'Arxius}
-
-L'aplicació web es compon dels cinc fitxers següents:
-
-\subsection{\texttt{estilo.css}}
-Fulla d'estils global que defineix l'aparença visual de totes les pàgines. Inclou:
-\begin{itemize}
-  \item Tipografia de família \textit{sans-serif} (Arial/Helvetica) i contenidor centrat amb ombra.
-  \item Format de taules amb \texttt{border-collapse: collapse} i vores en totes les cel·les (\texttt{th}, \texttt{td}).
-  \item Estils de formularis, etiquetes i botons diferenciats per acció (enviar / esborrar).
-  \item Classes \texttt{.msg-ok} (verd) i \texttt{.msg-error} (vermell) per a la visualització de missatges de resultat.
-\end{itemize}
-
-\subsection{\texttt{index-1.html}}
-Pàgina principal de l'aplicació. Conté el títol general del projecte i un menú de navegació en forma de llista desordenada (\texttt{<ul>}) amb dos accessos directes:
-\begin{itemize}
-  \item \textit{Ver lista} $\rightarrow$ \texttt{lista.php}
-  \item \textit{Añadir un sensor} $\rightarrow$ \texttt{form-sensor.php}
-\end{itemize}
-
-\subsection{\texttt{lista.php}}
-Pàgina dinàmica que recupera i mostra tots els sensors registrats. Estableix connexió amb MariaDB, executa un \texttt{SELECT} amb \texttt{INNER JOIN} entre les taules \texttt{Sensor} i \texttt{Magnitud} i presenta els resultats en una taula HTML amb les columnes: \textit{Id, Código, Modelo, Magnitud, Rango}. Allibera la memòria amb \texttt{\$resultado->free()} i tanca la connexió amb \texttt{\$cn->close()}.
-
-\subsection{\texttt{form-sensor.php}}
-Formulari d'alta de nous sensors. Es connecta a la base de dades per carregar dinàmicament les magnituds disponibles i poblar un element \texttt{<select>}. Inclou camps de text per a \textit{Código} (amb \texttt{maxlength="6"} i atribut \texttt{required}), \textit{Modelo} i \textit{Rango}, i s'envia per mètode \texttt{GET} cap a \texttt{nuevo-sensor.php}.
-
-\subsection{\texttt{nuevo-sensor.php}}
-Script de processament de la inserció. Recull les dades de \texttt{\$\_GET}, valida que els camps obligatoris no estiguin buits i, si la validació és correcta, executa un \texttt{INSERT INTO Sensor} mitjançant un \textbf{prepared statement} amb \texttt{bind\_param} per prevenir injeccions SQL. Gestiona tres estats possibles: dades incompletes, inserció correcta i error de clau duplicada (\texttt{errno~1062} de MariaDB).
+\begin{center}
+  \url{https://monitoritzacio-upc.gt.tc/}
+\end{center}
 
 % ════════════════════════════════════════════════════════════════════════════
-\section{Jocs de Proves}
+\section{Estructura d'arxius}
 
-S'han realitzat tres jocs de proves per verificar el correcte funcionament de la validació i la inserció de dades.
+\subsection{Entrega oficial (ZIP segons l'enunciat)}
 
-\subsection{Joc de proves 1 --- Enviament de formulari buit}
+Segons el document \textit{Lliurament.pdf}, el fitxer comprimit ha d'incloure exactament sis elements, disponibles a la carpeta \texttt{lliurament/} del repositori:
 
-S'ha accedit a \texttt{form-sensor.php} i s'ha premut el botó \textit{Enviar} sense introduir cap dada. El sistema ha redirigit a \texttt{nuevo-sensor.php}, on s'ha mostrat correctament el missatge d'error:
+\begin{enumerate}
+  \item \textbf{Memoria.pdf} --- memòria descriptiva en format PDF (aquest document).
+  \item \textbf{index-1.html} --- pàgina índex amb enllaços a la llista i al formulari d'alta.
+  \item \textbf{estilo.css} --- fulla d'estils global.
+  \item \textbf{lista.php} --- consulta i visualització dels sensors.
+  \item \textbf{form-sensor.php} --- formulari d'alta (mètode GET).
+  \item \textbf{nuevo-sensor.php} --- processament de la inserció a la base de dades.
+\end{enumerate}
 
-\begin{resultbox}[Resultat mostrat per pantalla]{BrickRed}
-  \texttt{Faltan datos para añadir el sensor}
-\end{resultbox}
+\subsection{Projecte complet (repositori de desenvolupament)}
 
-\textbf{Resultat: CORRECTE.} La validació del camp \textit{Código} (obligatori) ha funcionat com s'esperava.
+El repositori inclou, a més, fitxers addicionals per al desplegament i les millores:
 
-\subsection{Joc de proves 2 --- Inserció correcta d'un nou sensor}
+\begin{itemize}
+  \item \texttt{index.php} --- panell de control amb estadístiques en temps real.
+  \item \texttt{editar-sensor.php}, \texttt{guardar-edicion.php}, \texttt{eliminar-sensor.php} --- CRUD ampliat.
+  \item \texttt{config.php}, \texttt{config.local.php.example} --- configuració centralitzada de la connexió BD (local / producció).
+  \item \texttt{IoTMonitorizacion.sql} --- esquema i dades de la base de dades.
+\end{itemize}
 
-S'ha completat el formulari amb les dades de la taula~\ref{tab:jp2}:
+\subsection{Descripció dels fitxers d'entrega}
+
+\textbf{\texttt{index-1.html}} --- Conté el títol, el subtítol i una llista amb dos enllaços: \textit{Ver lista} $\rightarrow$ \texttt{lista.php} i \textit{Añadir un sensor} $\rightarrow$ \texttt{form-sensor.php}.
+
+\textbf{\texttt{lista.php}} --- Estableix connexió amb MariaDB, executa un \texttt{SELECT} amb \texttt{INNER JOIN} entre \texttt{Sensor} i \texttt{Magnitud}, i mostra una taula HTML amb les columnes \textit{Id, Código, Modelo, Magnitud, Rango}. Inclou enllaç per tornar a l'índex.
+
+\textbf{\texttt{form-sensor.php}} --- Carrega les magnituds des de la BD per omplir un \texttt{<select>}. Formulari enviat per GET cap a \texttt{nuevo-sensor.php}, amb camps \textit{Código} (\texttt{maxlength="6"}), \textit{Modelo} i \textit{Rango}, i validació de codi duplicat abans d'enviar.
+
+\textbf{\texttt{nuevo-sensor.php}} --- Recull \texttt{\$\_GET}, valida camps obligatoris, comprova duplicats amb \texttt{SELECT} i executa \texttt{INSERT} mitjançant \textit{prepared statement}. Mostra missatge d'èxit o d'error i enllaç per tornar a l'índex.
+
+\textbf{\texttt{estilo.css}} --- Design system amb tema fosc, variables CSS, tipografies Inter i JetBrains Mono, i components reutilitzables (navbar, cards, taules, formularis, alertes).
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Base de dades i connexió}
+
+\subsection{Paràmetres de connexió (entorn de desenvolupament)}
 
 \begin{table}[h!]
   \centering
-  \caption{Dades introduïdes en el joc de proves 2}
-  \label{tab:jp2}
-  \begin{tabularx}{0.6\textwidth}{>{\bfseries}l X}
+  \caption{Configuració MariaDB segons l'enunciat}
+  \begin{tabular}{ll}
     \toprule
-    Camp     & Valor introduït   \\
+    Paràmetre   & Valor \\
     \midrule
-    Magnitud & Temperatura       \\
-    Código   & \texttt{APTX14}   \\
-    Modelo   & Sensor Test       \\
-    Rango    & 0-50 °C           \\
+    Servidor    & \texttt{localhost} \\
+    Usuari      & \texttt{phpmyadmin} \\
+    Contrasenya & \texttt{12345} \\
+    Base de dades & \texttt{IoTMonitorizacion} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Taules principals}
+
+\textbf{Magnitud} (\texttt{id}, \texttt{nombre}): tipus de mesura (p.ex.\ Pressió, Temperatura).
+
+\textbf{Sensor} (\texttt{id}, \texttt{idMagnitud}, \texttt{codigo}, \texttt{modelo}, \texttt{rango}): el camp \texttt{codigo} té restricció \texttt{UNIQUE} (màxim 6 caràcters).
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Desplegament web}
+
+L'aplicació està publicada a InfinityFree i accessible des de qualsevol navegador a \url{https://monitoritzacio-upc.gt.tc/}. El desplegament s'ha realitzat mitjançant FTP al directori \texttt{htdocs}, importació de \texttt{IoTMonitorizacion.sql} via phpMyAdmin i configuració de credencials de producció mitjançant \texttt{config.local.php} (exclòs del control de versions per seguretat).
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Jocs de proves}
+
+S'han executat els tres jocs de proves indicats a l'enunciat.
+
+\subsection{Joc de proves 1 --- Formulari buit}
+
+S'ha enviat el formulari sense omplir cap camp. El sistema mostra el missatge d'error:
+
+\begin{resultbox}[Resultat]{BrickRed}
+  \texttt{Faltan datos obligatorios para añadir el sensor}
+\end{resultbox}
+
+\textbf{Resultat: CORRECTE.} La validació impedeix la inserció sense dades obligatòries.
+
+\subsection{Joc de proves 2 --- Inserció correcta}
+
+\begin{table}[h!]
+  \centering
+  \caption{Dades del joc de proves 2}
+  \label{tab:jp2}
+  \begin{tabularx}{0.65\textwidth}{>{\bfseries}l X}
+    \toprule
+    Camp     & Valor \\
+    \midrule
+    Magnitud & Pressió \\
+    Código   & \texttt{APTX14} \\
+    Modelo   & kaidan 32 \\
+    Rango    & 1--5 Mpa \\
     \bottomrule
   \end{tabularx}
 \end{table}
 
-El sistema ha mostrat el missatge:
+Missatge obtingut:
 
-\begin{resultbox}[Resultat mostrat per pantalla]{OliveGreen}
-  \texttt{Operación efectuada correctamente}
+\begin{resultbox}[Resultat]{OliveGreen}
+  Sensor \texttt{APTX14} añadido correctamente
 \end{resultbox}
 
-Posteriorment, s'ha verificat la inserció consultant la taula \texttt{Sensor} des de \texttt{lista.php}, on el nou registre apareixia correctament.
+El registre es verifica a \texttt{lista.php} i a la base de dades.
 
-\textbf{Resultat: CORRECTE.} La inserció a la base de dades s'ha realitzat satisfactòriament.
+\textbf{Resultat: CORRECTE.}
 
-\subsection{Joc de proves 3 --- Detecció de codi de sensor duplicat}
+\subsection{Joc de proves 3 --- Codi duplicat}
 
-S'ha tornat a enviar el formulari amb exactament les mateixes dades del joc de proves anterior (Código: \texttt{APTX14}). La taula \texttt{Sensor} té una restricció \texttt{UNIQUE KEY} sobre el camp \texttt{codigo}, de manera que MariaDB ha retornat l'error intern \texttt{errno~1062}. L'aplicació ha capturat aquest error i ha mostrat:
+S'ha tornat a enviar el mateix codi \texttt{APTX14}. Abans de l'\texttt{INSERT}, l'aplicació detecta el duplicat i mostra:
 
-\begin{resultbox}[Resultat mostrat per pantalla]{BrickRed}
-  \texttt{Duplicate entry 'APTX14' for key 'codigo'}
+\begin{resultbox}[Resultat]{BrickRed}
+  Ya existe un sensor con el código \texttt{APTX14}. El código debe ser único.
 \end{resultbox}
 
-\textbf{Resultat: CORRECTE.} El control d'errors d'integritat referencial funciona correctament.
+\textbf{Resultat: CORRECTE.} No es produeix error SQL visible; la integritat de la clau única es manté.
 
 % ════════════════════════════════════════════════════════════════════════════
-\section{Repartiment de Tasques}
+\section{Repartiment de tasques}
 
 \begin{table}[h!]
   \centering
-  \caption{Distribució de tasques entre els membres del grup}
+  \caption{Aportació de cada membre de l'equip}
   \label{tab:tasques}
   \begin{tabularx}{\textwidth}{>{\bfseries}l X}
     \toprule
-    Membre            & Tasques realitzades \\
+    Membre & Tasques realitzades \\
     \midrule
-    {[NOM MEMBRE 1]}  & Disseny i configuració de la base de dades local: creació de l'entorn MariaDB, importació de l'esquema SQL (\texttt{IoTMonitorizacion.sql}) i creació de l'usuari de connexió. \\[6pt]
-    {[NOM MEMBRE 2]}  & Programació del \textit{backend} PHP: implementació de \texttt{lista.php}, \texttt{form-sensor.php} i \texttt{nuevo-sensor.php}, incloent les connexions \texttt{mysqli} OO, les consultes SQL i la gestió d'errors. \\[6pt]
-    {[NOM MEMBRE 1]}  & Disseny de la interfície: creació de \texttt{index-1.html} i \texttt{estilo.css}, maquetació de totes les pàgines i aplicació dels estils visuals. \\[6pt]
-    {[NOM MEMBRE 2]}  & Proves d'integració i redacció de la memòria: execució dels tres jocs de proves, verificació dels resultats i elaboració del present document. \\
+    Arnau Genover &
+    Disseny de la interfície (\texttt{estilo.css}), panell de control (\texttt{index.php}), navegació, millores visuals, configuració de desplegament (InfinityFree), documentació (\texttt{README.md}, \texttt{DOCUMENTACIO.md}) i preparació de la carpeta \texttt{lliurament/}. \\[6pt]
+    Pol Coll &
+    Programació PHP del backend: \texttt{lista.php}, \texttt{form-sensor.php}, \texttt{nuevo-sensor.php}, CRUD ampliat (editar/eliminar), consultes SQL amb JOIN, prepared statements, validació de dades, configuració MariaDB local i execució dels jocs de proves. \\[6pt]
+    Ambdós &
+    Redacció conjunta de la memòria, proves d'integració, revisió del codi i desplegament final a \url{https://monitoritzacio-upc.gt.tc/}. \\
     \bottomrule
   \end{tabularx}
 \end{table}
@@ -246,8 +289,10 @@ S'ha tornat a enviar el formulari amb exactament les mateixes dades del joc de p
 % ════════════════════════════════════════════════════════════════════════════
 \section{Conclusions}
 
-S'ha desenvolupat amb èxit una aplicació web CRUD parcial per a la gestió de sensors industrials. L'ús de \texttt{mysqli} en mode orientat a objectes ha permès establir connexions segures i estructurades amb MariaDB. L'aplicació valida correctament les entrades de l'usuari, gestiona els errors de la base de dades de forma robusta i presenta la informació de manera clara i accessible a través d'una interfície HTML/CSS neta i funcional.
+S'ha desenvolupat amb èxit una aplicació web per a la gestió de sensors industrials, complint l'enunciat de la pràctica i ampliant-la amb funcionalitats addicionals (CRUD complet, validació de duplicats, cerca i desplegament en producció).
 
-Els tres jocs de proves han confirmat que tots els camins d'execució de l'aplicació (formulari buit, inserció correcta i codi duplicat) funcionen correctament.
+L'ús de \texttt{mysqli} amb \textit{prepared statements} i \texttt{htmlspecialchars()} garanteix un accés segur a la base de dades i una sortida HTML protegida. Els tres jocs de proves confirmen el correcte funcionament dels camins d'execució principals.
+
+L'aplicació desplegada a \url{https://monitoritzacio-upc.gt.tc/} demostra la viabilitat del sistema en un entorn web real, connectat a MariaDB remota.
 
 \end{document}

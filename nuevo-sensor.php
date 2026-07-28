@@ -5,17 +5,18 @@
  * el nou sensor a la base de dades.
  */
 
-// ── Recollida de dades de $_GET ──────────────────────────────────────────────
+require_once 'config.php';
+
 $idMagnitud = isset($_GET['idMagnitud']) ? trim($_GET['idMagnitud']) : '';
 $codigo     = isset($_GET['codigo'])     ? trim($_GET['codigo'])     : '';
 $modelo     = isset($_GET['modelo'])     ? trim($_GET['modelo'])     : '';
 $rango      = isset($_GET['rango'])      ? trim($_GET['rango'])      : '';
 
-// ── Validació: comprova que els camps obligatoris no estiguin buits ──────────
-$error = '';
+$error   = '';
+$success = false;
 
 if (empty($idMagnitud) || empty($codigo)) {
-    $error = 'Faltan datos para añadir el sensor';
+    $error = 'Faltan datos obligatorios para añadir el sensor (magnitud y código son requeridos).';
 }
 ?>
 <!DOCTYPE html>
@@ -23,67 +24,151 @@ if (empty($idMagnitud) || empty($codigo)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Añadir sensor</title>
+    <title>Resultado — IoT Monitor</title>
     <link rel="stylesheet" href="estilo.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Monitorización de subestaciones eléctricas</h1>
-        <h2>Añadir sensores</h2>
 
-        <?php if ($error !== ''): ?>
-            <!-- ── Cas 1: falten dades ──────────────────────────────────── -->
-            <p class="msg-error"><?= htmlspecialchars($error) ?></p>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="index.php" class="navbar-brand">
+            <div class="brand-icon">⚡</div>
+            <div>
+                IoT Monitor
+                <span class="brand-sub">Subestaciones Eléctricas</span>
+            </div>
+        </a>
+        <ul class="navbar-nav">
+            <li><a href="index.php">Inicio</a></li>
+            <li><a href="lista.php">Sensores</a></li>
+            <li><a href="form-sensor.php">Añadir</a></li>
+        </ul>
+    </nav>
 
-        <?php else: ?>
-            <?php
-            // ── Connexió a la base de dades (mysqli OO) ──────────────────
-            $cn = new mysqli('localhost', 'phpmyadmin', '12345', 'IoTMonitorizacion');
+    <div class="page">
 
-            if ($cn->connect_errno) {
-                die('Error de connexió: ' . $cn->connect_error);
-            }
+        <div class="page-header">
+            <h1>Resultado de la operación</h1>
+            <p>Estado de la inserción del nuevo sensor</p>
+        </div>
 
-            // ── Prepared statement per evitar SQL injection ───────────────
-            $stmt = $cn->prepare(
-                "INSERT INTO Sensor (idMagnitud, codigo, modelo, rango)
-                 VALUES (?, ?, ?, ?)"
-            );
+        <div class="card" style="max-width: 560px;">
+            <div class="card-header">
+                <h2><span class="icon">📋</span> Informe</h2>
+            </div>
+            <div class="card-body">
 
-            if (!$stmt) {
-                die('Error preparant la consulta: ' . $cn->error);
-            }
+                <?php if ($error !== ''): ?>
+                    <div class="alert alert-error">
+                        <span class="alert-icon">✖</span>
+                        <div><?= htmlspecialchars($error) ?></div>
+                    </div>
+                    <a href="form-sensor.php" class="btn btn-primary">← Volver al formulario</a>
 
-            // Vincula els paràmetres: i = integer, s = string
-            $stmt->bind_param('isss', $idMagnitud, $codigo, $modelo, $rango);
+                <?php else: ?>
+                    <?php
+                    if (!$cn) { die(htmlspecialchars($DB_CONNECT_ERROR)); }
 
-            // ── Execució i tractament del resultat ────────────────────────
-            if ($stmt->execute()) {
-                // Cas 2: inserció correcta
-                echo '<p class="msg-ok">Operación efectuada correctamente</p>';
-            } else {
-                // Cas 3: error en la inserció
-                if ($cn->errno === 1062) {
-                    // Codi duplicat (clau única violada)
-                    echo '<p class="msg-error">Duplicate entry \''
-                         . htmlspecialchars($codigo)
-                         . '\' for key \'codigo\'</p>';
-                } else {
-                    // Qualsevol altre error de MySQL
-                    echo '<p class="msg-error">Error en la inserción: '
-                         . htmlspecialchars($cn->error)
-                         . '</p>';
-                }
-            }
+                    // Comprova duplicat abans d'intentar la inserció
+                    $duplicado = false;
+                    $stmtCheck = $cn->prepare("SELECT id FROM Sensor WHERE codigo = ? LIMIT 1");
+                    if ($stmtCheck) {
+                        $stmtCheck->bind_param('s', $codigo);
+                        $stmtCheck->execute();
+                        $resCheck = $stmtCheck->get_result();
+                        $duplicado = ($resCheck->num_rows > 0);
+                        $stmtCheck->close();
+                    }
 
-            // Allibera els recursos i tanca la connexió
-            $stmt->close();
-            $cn->close();
-            ?>
+                    if ($duplicado):
+                    ?>
+                        <div class="alert alert-error">
+                            <span class="alert-icon">✖</span>
+                            <div>Ya existe un sensor con el código <strong><?= htmlspecialchars($codigo) ?></strong>. El código debe ser único.</div>
+                        </div>
+                        <a href="form-sensor.php" class="btn btn-primary">← Volver al formulario</a>
 
-        <?php endif; ?>
+                    <?php else:
+                    $stmt = $cn->prepare(
+                        "INSERT INTO Sensor (idMagnitud, codigo, modelo, rango)
+                         VALUES (?, ?, ?, ?)"
+                    );
 
-        <a class="back-link" href="index-1.html">Volver al índice</a>
+                    if (!$stmt) {
+                        die('Error preparant la consulta: ' . $cn->error);
+                    }
+
+                    $stmt->bind_param('isss', $idMagnitud, $codigo, $modelo, $rango);
+
+                    if ($stmt->execute()):
+                        $success = true;
+                    ?>
+                        <div class="alert alert-success">
+                            <span class="alert-icon">✔</span>
+                            <div>Sensor <strong><?= htmlspecialchars($codigo) ?></strong> añadido correctamente.</div>
+                        </div>
+
+                        <table style="margin-bottom: 20px;">
+                            <tbody>
+                                <tr>
+                                    <td style="color:var(--muted);width:120px;font-size:0.8rem;text-transform:uppercase;letter-spacing:.05em;">Código</td>
+                                    <td class="td-code"><?= htmlspecialchars($codigo) ?></td>
+                                </tr>
+                                <tr>
+                                    <td style="color:var(--muted);font-size:0.8rem;text-transform:uppercase;letter-spacing:.05em;">Modelo</td>
+                                    <td><?= htmlspecialchars($modelo ?: '—') ?></td>
+                                </tr>
+                                <tr>
+                                    <td style="color:var(--muted);font-size:0.8rem;text-transform:uppercase;letter-spacing:.05em;">Rango</td>
+                                    <td class="td-range"><?= htmlspecialchars($rango ?: '—') ?></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="btn-group">
+                            <a href="lista.php"       class="btn btn-primary">Ver lista de sensores</a>
+                            <a href="form-sensor.php" class="btn btn-ghost">Añadir otro</a>
+                        </div>
+                        <p class="redirect-note" id="redirectNote">Redirigiendo a la lista en <span id="countdown">3</span>s…</p>
+
+                    <?php else: ?>
+                        <div class="alert alert-error">
+                            <span class="alert-icon">✖</span>
+                            <div>Error en la inserción: <?= htmlspecialchars($cn->error) ?></div>
+                        </div>
+                        <a href="form-sensor.php" class="btn btn-primary">← Volver al formulario</a>
+
+                    <?php endif; ?>
+
+                    <?php
+                    $stmt->close();
+                    endif; // duplicado
+                    $cn->close();
+                    ?>
+
+                <?php endif; ?>
+
+            </div>
+        </div>
+
+        <a class="back-link" href="index.php">← Volver al inicio</a>
+
     </div>
+
+    <?php if ($success): ?>
+    <script>
+        let secs = 3;
+        const el = document.getElementById('countdown');
+        const interval = setInterval(() => {
+            secs--;
+            if (el) el.textContent = secs;
+            if (secs <= 0) {
+                clearInterval(interval);
+                window.location.href = 'lista.php';
+            }
+        }, 1000);
+    </script>
+    <?php endif; ?>
+
 </body>
 </html>
